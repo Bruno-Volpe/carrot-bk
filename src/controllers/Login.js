@@ -136,9 +136,10 @@ const checkCode = async (req, res) => {
 
     const userCode = req.body.code
     if (!userCode) return res.status(404).json(errorM('Code not sent'))
+    console.log(code)
 
     // Unhash the code and compare with the user's code
-    const result = await bcrypt.compare(code, userCode)
+    const result = await bcrypt.compare(userCode, code)
     if (!result) {
       return res.status(401).json(errorM('Invalid Code!'))
     }
