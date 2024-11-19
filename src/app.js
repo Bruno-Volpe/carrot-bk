@@ -4,8 +4,6 @@ import './database';
 import cors from 'cors';
 
 import loginRouter from './routes/login';
-import customersRouter from './routes/customers';
-//import profileRouter from './routes/profiles';
 
 import loginRequired from './middlewares/loginRequired';
 
@@ -27,29 +25,27 @@ dotenv.config();
 // };
 
 const corsOptions = {
-    origin: function (origin, callback) {
-        callback(null, true);
-    }
+  origin: function (origin, callback) {
+    callback(null, true);
+  }
 };
 
 class App {
-    constructor() {
-        this.app = express();
-        this.middlewares();
-        this.routes();
-    }
+  constructor() {
+    this.app = express();
+    this.middlewares();
+    this.routes();
+  }
 
-    middlewares() {
-        this.app.use(cors(corsOptions));
-        this.app.use(express.json());
-        this.app.use(express.urlencoded({ extended: true }));
-    }
+  middlewares() {
+    this.app.use(cors(corsOptions));
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
+  }
 
-    routes() {
-        this.app.use('/login', loginRouter)
-        this.app.use('/customers', loginRequired, customersRouter)
-        // this.app.use('/profiles', loginRequired, profileRouter)
-    }
+  routes() {
+    this.app.use('/login', loginRouter)
+  }
 }
 
 module.exports = new App().app;
