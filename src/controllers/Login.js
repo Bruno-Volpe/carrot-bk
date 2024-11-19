@@ -77,36 +77,43 @@ const sendEmail = async (req, res) => {
       return res.status(404).send(errorM('User not found'))
     }
 
-    const code = Math.floor(Math.random() * 99999999)
+    let code = Math.floor(100000 + Math.random() * 900000)
     const remetente = await nodemailer.createTransport({
-      host: "smtp.office365.com", // hostname
+      host: "smtp.gmail.com", // hostname
       secureConnection: false, // TLS requires secureConnection to be false
-      port: 587, // port for secure SMTP
+      port: 465, // port for secure SMTP
       tls: {
         ciphers: 'SSLv3'
       },
       auth: {
-        user: 'login.escola@outlook.com',
-        pass: 'Bv759236' // Ideally, use environment variables for security
+        user: 'sende3331@gmail.com',
+        pass: 'cvan tced hgyr abvb'
       }
     })
 
     const email = {
-      from: 'login.escola@outlook.com',
+      from: 'sende3331@gmail.com',
       to: emailForms,
       subject: 'Your Code',
       text: `Your code is ${code}`,
     }
 
-    await remetente.sendMail(email, function (error) {
-      if (error) {
-        console.log(error)
+    //Encrypt the email and code usign bcrypt
+    bcrypt.hash(String(code), 10, async (err, hash) => {
+      if (err) {
+        return res.status(500).json(errorM(err))
       }
+
+      await remetente.sendMail(email, function (error) {
+        if (error) {
+          console.log(error)
+          return res.status(500).send(errorM('Error sending email'))
+        }
+      })
+
+      const token = jwt.sign({ emailForms, code: hash }, 'SendCodeToken', { expiresIn: '1h' }) // Consider using dotenv for the secret key
+      res.status(200).json({ token })
     })
-
-    const token = jwt.sign({ emailForms, code }, 'SendCodeToken', { expiresIn: '1h' }) // Consider using dotenv for the secret key
-    res.status(200).json({ token })
-
   } catch (error) {
     console.error(error)
     res.status(500).send(errorM('Internal server error'))
@@ -130,16 +137,19 @@ const checkCode = async (req, res) => {
     const userCode = req.body.code
     if (!userCode) return res.status(404).json(errorM('Code not sent'))
 
-    if (Number(userCode) === Number(code)) {
-      const user = await Users.findOne({ where: { email: emailForms } })
-      if (user !== null) {
-        const token = jwt.sign({ email: emailForms, id: user.id }, 'ResetPasswordToken', { expiresIn: '1h' }) //TODO: replace with dotenv
-        return res.status(200).json({ token })
-      }
-
-      return res.status(404).json(errorM('User does not exist!'))
+    // Unhash the code and compare with the user's code
+    const result = await bcrypt.compare(code, userCode)
+    if (!result) {
+      return res.status(401).json(errorM('Invalid Code!'))
     }
-    res.status(401).json(errorM('Invalid Code!'))
+    const user = await Users.findOne({ where: { email: emailForms } })
+    if (user !== null) {
+      const token = jwt.sign({ email: emailForms, id: user.id }, 'ResetPasswordToken', { expiresIn: '1h' }) //TODO: replace with dotenv
+      return res.status(200).json({ token })
+    }
+
+    return res.status(404).json(errorM('User does not exist!'))
+
   } catch (e) {
     return res.status(401).json(errorM('Expired or invalid token.'));
   }
