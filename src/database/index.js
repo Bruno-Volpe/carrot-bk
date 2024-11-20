@@ -2,8 +2,9 @@ import Sequileze from 'sequelize'
 import databaseConfig from '../config/database'
 
 import Users from '../models/Users'
+import Infos from '../models/Infos'
 
-const models = [Users,]
+const models = [Users, Infos]
 
 const connection = new Sequileze(databaseConfig)
 

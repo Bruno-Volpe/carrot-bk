@@ -13,6 +13,7 @@ async function storeObject(req, res, model) {
     const newModelObject = await model.create(req.body);
     res.status(200).json(newModelObject);
   } catch (e) {
+    console.log(e);
     res.status(400).json({
       errors: e.errors?.map((err) => err.message) || [{ message: e.message }],
     });

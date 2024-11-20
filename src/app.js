@@ -4,6 +4,7 @@ import './database';
 import cors from 'cors';
 
 import loginRouter from './routes/login';
+import infoRouter from './routes/info';
 
 import loginRequired from './middlewares/loginRequired';
 
@@ -45,6 +46,7 @@ class App {
 
   routes() {
     this.app.use('/login', loginRouter)
+    this.app.use('/info', loginRequired, infoRouter) //TODO: add login required middleware
   }
 }
 
