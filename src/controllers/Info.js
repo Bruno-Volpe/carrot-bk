@@ -12,7 +12,10 @@ const show = async (req, res) => {
     const id = req.body.user_id;
     if (!id) return res.status(401).json(errorM('ID nao enviado'));
 
-    const modelObject = await Customers.findOne({ where: { user_id: id } });
+    const modelObject = await Customers.findOne({
+      where: { user_id: id },
+      attributes: { exclude: ['created_at', 'updated_at', 'id', 'user_id'] }
+    });
     if (!modelObject) return res.status(404).json(errorM('User não encontrado'));
     res.status(200).json(modelObject);
   } catch (e) {
