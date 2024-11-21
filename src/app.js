@@ -5,6 +5,7 @@ import cors from 'cors';
 
 import loginRouter from './routes/login';
 import infoRouter from './routes/info';
+import iaRouter from './routes/ia';
 
 import loginRequired from './middlewares/loginRequired';
 
@@ -46,7 +47,8 @@ class App {
 
   routes() {
     this.app.use('/login', loginRouter)
-    this.app.use('/info', loginRequired, infoRouter) //TODO: add login required middleware
+    this.app.use('/info', loginRequired, infoRouter)
+    this.app.use('/ia', loginRequired, iaRouter)
   }
 }
 
